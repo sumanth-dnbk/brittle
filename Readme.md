@@ -79,7 +79,7 @@ I still remeber some compilers throwing errors and giving suggestions that neith
 
 ## Tuple Struct 
 struct WriteMessage(String);
-For some reason, tuple struct always seem to throw me off. I understand the reason for creating tuple struct and its adavantages but the syntax somehow feels different. 
+For some reason, tuple struct always seem to throw me off. I understand the reason for creating tuple struct and its adavantages but the syntax somehow feels different. Shouldn't this be called `Struct Tuple`.
 
 ## Defining enum variants
 enum Message {
@@ -172,7 +172,7 @@ fn largest<'a>(x: &'a str, y: &'a str)->&'a str
 to find the largest of strings, Rust needs to know the lifetime of each parameter. If a function or method definition falls in to the lifetime elison category, rust annotates it for us automatically.1. Rust annotates each input parameter automatically, 2.  If there is only one lifetime annotation to input parameter the same is automaically applied to output parameter. 3. If it is a method then output parameter gets the same lifetime annotation as the self parameter.
 
 ## Trait bounds
-While reading through the trait documentation, I understood all the code but forgot what trait bound mean in terms of code. Later, I found it and thought of documenting for my refernce. Trait bound in Rust are a way to specify that generic type must implement a paritucal triat(s) in order to be used. 
+While reading through the trait documentation, I understood all the code but forgot what trait bound meant in terms of code. Later, I found it and thought of documenting for my refernce. Trait bound in Rust are a way to specify that generic type must implement a paritucal triat(s) in order to be used. 
 
 ```
 use std::fmt::Display;
@@ -189,7 +189,7 @@ The excitement for Rust carried me till Week 4 and I still excited about Rust go
 ## Testing
 I started reading about testing in Rust. I've written tests in other languages and testing in Rust felt like I was moving the same known path. However, tests in Rust were written in the same file as the business logic with a sub-module called test. I feel that having tests with business logic will make is clumsy, but on the the other hand having unit tests in the same file serves as a part of documentation. Rust uses #[cfg(test)] annotation so as separate the test code during compile time so as to reduce the compile time and output artifact sizes. 
 
-    Diverging a bit from the testing topic, I've come across the word 'annotation' in multiple programming languages and I remember it as something  I add on top of a method or property as such to indicate the method is different or is to be interpreted differently. The English dictionary meaning of it being "a note of explanation or comment added to a text or diagram".  
+    Diverging a bit from the testing topic, I've come across the word 'annotation' in multiple programming languages and I remember it as something  I add on top of a method or property as such to indicate the method is different or is to be interpreted differently. The dictionary meaning of it being "a note of explanation or comment added to a text or diagram".  
 
 Getting back on the testing chain of thought, next were integration tests. As far as I've known, I considered integration tests as testing as a whole but couldn't give a better explanation than that. After reading the Rust docs , my mental model for Integration tests has been made more concise to state, Integration tests call your APIs(in library or server) as if called by a client. Rust suggests to put them in tests directory and it made sense so as to keep them separately and interact with them as if  using a client library. However, for some reason each file under tests directory is considered as a separate crate. Since, setup is common for all integration tests, Rust considers code under common directory(is it just common directory or any directory under tests?) as one whole module??
 
@@ -200,7 +200,7 @@ as soon as I hear the word closures, it reminds me of some concept in Mathematic
 
 Firstly, I've observed closures do not have a function name, so does this mean closures are same as anonmymous functions. Does Rust even support anonymous functions. Yes, it does and according to The Book, "Rust's closures are anonymous functions you can save in a variable and pass an argument to other functions.". Additionally, the buzz around closures is that they can capture variables in the environment it is declared and since Rust has the concept of ownership, it check whether the variables are borrowed mutably, immutably or entirely moved(as in case of threads and other contenxt). Next, based on how a closure handles the variable ownership a closure is said to implement one or more of the traits Fn, FnOnce and FnMut. 
 
-Besides, all of these I wonder why Rust developers decided to use '||' to capture arguments for a closure. That seems different than any other programming languages , but then again Rust is in a class of its own languages or to be precise one of a kind!
+Besides, all of these I wonder why Rust designers decided to use '||' to capture arguments for a closure. That seems different than any other programming languages , but then again Rust is in a class of its own languages or to be precise one of a kind!
 
 ## iterators
 huh, where do I begin. I am kind of torn between fully going into using iterators to make the code more elegant vs sticking with regular 'for loop' for the sake of simplicity and it is easy to set a breakpoint with the debugger(the breakpoint reason might not seem important to other, if you ask me it helps when you need it.). And regarding simplicity of for loops, I don't think iterators are too complicated but somehow I am into the feeling that they are not as performant as for loops. May be that is why The Book of Rust has a section comparing iterators with for loop interms of performance. Although, iterators may be as performant as for loops and even more elegant that for loops, I still have some reservations with using them since they cannot be debugged easily. Lets, see may be I find better ways to debug iterators and I might start to fully embrace that style of programming. 
@@ -244,3 +244,233 @@ Box is a Smart pointer. Firstly, why the name Box, is it because of the concept 
         -- Phil Karlton
 
 Okay, now back to the topic at hand, Boxes provide the ability to store the data on heap rather than on stack. From the documentation, I can see that Boxes clearly provide answers to some of the use cases that arise due to the way Rust compiler operates and some other use cases that provide performance benefit. (I referred to the concept Box as a plural, Boxes, while writing about it. Now that I see it, it is done with other concepts as well Pointers, variables , strings and data structures. huh. Why is that so?)
+
+```
+enum List {
+    Cons(i32, List),
+    Nil,
+}
+```
+
+Consider the above code snippet. That does not work in Rust but something similar works in some OOP based languages. Is that List representation intuitive or the one below ? I wonder what would be intuitive to a Mathematician(assuming we can represent Box mathematically).
+
+```
+enum List {
+    Cons(i32, Box<List>),
+    Nil,
+}
+```
+
+Since, Rust needs to know the size of types during compile time, we can represent recursive types using Smart pointers in Rust. It is not straight forward compared to other language but it seems more logical to me.
+
+## Dereferencing operator(*)
+Lets talk semantics first. Before, I go on about dereferencing, I thought to write define referencing in my own way for my mental model. A Pointer *references* to "some value". Applying *dereference* operator (*), which  is an inverse operator to what a *reference* does. Hence applying dereference on reference to "some value" gives us "some value" back.
+
+We know that we can use dereference operator on pointers. However, we can also apply dereference operator on Smart pointers as well given that they implement Deref trait. 
+
+In the code snippet below(Deref trait implementation on MyBox), the line  `impl<T> Deref for MyBox<T>` contains the reserved keyword for used not for writing for loop but in the context of Traits. To be continued after code snippet...
+```
+use std::ops::Deref;
+
+impl<T> Deref for MyBox<T> {
+    type Target = T;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+```
+
+The point I am trying to make here is that, are keywords used in different contexts to mean different things in other languages as well? I guess it is a good thing so that I need not remember many keywords and when an existing keyword makes the code readable. 
+
+## Deref Coercion 
+"Deref Coercion" , I guess the person who named it has done a great job of using exisiting words instead of going for a entirely new word(deref casting or deref morphing, kidding ofcourse) for naming this concept. Now, for the definition "Deref coercion converts a reference to a type that implements Deref trait into reference to another type" . So, Deref Coercion only deals with references unlike type casting which deals with types. The example given for this behaviour is that deref coercion can convert `&String` to `&str` because `String` implements the `Deref` trait such that it returns `&str`.
+
+### a small detour
+Lets take a detour: isn't `&str` a string slice holding reference to string literal type `str` stored on application binary, then how is that `&str` can also store a reference to `String`.Aren't they two different things, one is stored on application binary(str) and other is stored on heap. I mean at the end, they both represent Strings in general, so I guess I shouldn't feel that surprised to find &str can hold a reference a string irrespective of where it is stored. However, in the code snippet below, `slice1` is of type `&String`  and `slice2` is of type `&str` and both are valid. 
+
+```
+fn main() {
+let s = String::from("hello");
+let ref1: &String = &s;
+let slice1: &str = &s;
+println!("{ref1} {slice1}");
+}
+```
+
+I guess this is what made me feel not so sure about the `&String` and `&str`. `&String` is simple, it is a pointer to a `String` variable's address on Stack. But what does `&str` do? On going back to the ([documentation](https://doc.rust-lang.org/book/ch04-03-slices.html#string-slices)), I've found string slice is reference to part of a string, ie., it points to String on heap. Now, it makes sense.
+
+## Back to Deref Coercion
+```
+fn hello(name: &str) {
+    println!("Hello, {name}!");
+}
+
+fn main() {
+    let m = MyBox::new(String::from("Rust"));
+    hello(&m);
+}
+```
+
+In the code snippet above, &m which is `&MyBox<String>` was converted to `&str` through Deref coercision. `&MyBox<String>` -> `&String` -> `&str`. Since, these deref coercions are done at compile time these are zero cost as well. 
+
+# Week 6
+I was lagging behind in the exercise portion on [Rustlings](https://github.com/rust-lang/rustlings) compared to The Book, so I went back to the exercises. This time around, once I fixed the error I started taking a look at the solution so that I could learn another way(probably more elegant than my solution) of solving it. This is where I've started noticing implementations that are different in Rust.
+
+## type casting
+
+```
+    let mut numbers:Vec<i16> = Vec::new();
+
+    // Don't change the lines below.
+    let n1: u8 = 42;
+    numbers.push(n1.into());
+    let n2: i8 = -1;
+    numbers.push(n2.into());
+```
+
+Consider the code snippet above from generics1 exercise. since i16 type is allocated a size 16 bytes, it can hold smaller integer types i8 and u8 and these can be cast to i16. Now, what got me thinking were two things and the firt being that type casting was done using the `into()`([for more info](https://doc.rust-lang.org/rust-by-example/conversion/from_into.html)) method instead of automatic type casting to higher data types as in C++ and Java. Turns out, Rust does not support implicit type casting and I this helps developers be aware of any castings that are neeeded since they are manual now. `into()` is a method that needs to be implemented as part of `Into` trait and each conversion has its own implementation. In `n1.into()`, Rust infers that I am converting `u8` to `i32` and checks for `Into<u8> for i16` implementation. Rust supports explicit type casting using `as` operator, but this approach can cause truncation.
+
+The second detail that got me thinking was the fact that primitive types have methods `n1.into()` or I could do `n1.mul(2)` or `n1.pow(2)`. Firstly, why do primitive types has methods available on them but I don't think Rust calls them primitive types, they are just types? In java `int` or `float` are called primitive types since they are not Object types.So, yeah `i32` could implement some traits and it can access those methods which it has implemented as part of those traits. However, `n1.pow(2)` seems different to me compared to other languages like C, Java. I mean, why not use `pow(n1,2)` and it turns out there were reason(s) behind it. Rust does not support function overloading(to avoid run time polymorphism?) and since there is no method overloading the alternative would have been `pow_i32` and so on for different types and which would have been not so elegant. 
+
+## mut in trait method declarations
+```
+trait AppendBar {
+    fn append_bar(self) -> Self;
+}
+
+impl AppendBar for Vec<String> {
+    fn append_bar(mut self) -> Self {
+        //        ^^^ this is important
+        self.push(String::from("Bar"));
+        self
+    }
+}
+```
+
+Again, from the Rustling exercise solution, I saw that the Trait implementation method had `mut` in the function definition while the trait method declaration didn't.
+
+However, `mut` in trait method declaration is allowed for mutable borrows.
+```
+trait Modify {
+    fn modify(&mut self);
+}
+
+struct Counter {
+    value: i32,
+}
+
+impl Modify for Counter {
+    fn modify(&mut self) {
+        self.value += 1;
+        println!("Counter is now: {}", self.value);
+    }
+}
+```
+
+Luckily, there was a [stack overflow post](https://stackoverflow.com/questions/66700509/why-is-mut-self-in-trait-implementation-allowed-when-trait-definition-only-uses) about the same question.
+
+## iterators
+just finished the iterator section of exercises in rustlings and I feel that Rust documenation is trying to nudge developers towards using iterators a bit more than the regular for/while loops since code looks consise.
+
+## Rc<T>, the reference counted smart pointer
+
+To represent a graph for view only purposes, we can use immutable references but we cannot edit the nodes while still having immutable references stored by other nodes. Most of the graphs represented via an adjacency list or a diagonal matrix so it wouldn't be much of an issue. However, I see problems implementing Trie data structure in Rust since it is hard if the linked nodes are read only. But, I don't think Rc<T> can solve our problem since they are read only references? If Rc<T> is immutable by the owners if so why not just use immutable references. Maybe I missed somethign here. Turns out someone had the same question after reading this section in documentation and it was ansered on [stack overflow](https://stackoverflow.com/questions/67747657/why-do-we-need-rct-when-immutable-references-can-do-the-job). Longstory short, if you do not want to deal with different lifetimes when using immutable references and if becomes even more complex when we have to pass them around. Okay, sold I need no more convicing. I just need to make sure that I do not overuse Rc<T> and keep using immutable references where it makes sense.
+
+## Interior mutability pattern
+It is a design pattern in Rust that allows you to mutate data even when there are immutable references to that data. It has become a habit to me to try and understand why the design pattern is named interior mutability. I understand mutability but not sure as to what 'interior' keyword has to do with mutating immutable references. Is it so because we are mutatiting values inside(interior) an immutable object. Now, back to the what it does. Okay, honestly I wished Rust didn't allow this and it could check everything at compile time but ofcourse a compiler cannot check all kinds of programs, hence the need to have some exceptions like this. I only wish  nothing more of this sort are added to the language in the future. I ask of it since with RefCell<T>, that follows interior mutability, the borrowing rules are checked during runtime. Things to remember about RefCell<T>, use borrow and borrow_mut to access the value stored inside it.
+
+## Combining Rc<T> and RefCell<T>
+This sounded similar to a game combo move, you can jump and you can dash, now jump and dash at once. It was used this way , `Rc<RefCell<i32>>`, to have multiple owners to i32 using Rc<T> and all of them can modify the value through RefCell<T> even though Rc<T> is immuatable. Although, we need to make sure that we are still adhering to the borrow checker rules since it is still enforced at runtime.Now, What happens when I create a type by interchanging the before to create a type `RefCell<Rc<i32>>`, now what does it do? Huh, turns out the next section of The book does use `RefCell<Rc<T>>` to demonstrate memory leak by creating cycles using linked lists. 
+```
+enum List {
+    Cons(i32, RefCell<Rc<List>>),
+    Nil,
+}
+
+impl List {
+    fn tail(&self) -> Option<&RefCell<Rc<List>>> {
+        match self {
+            Cons(_, item) => Some(item),
+            Nil => None,
+        }
+    }
+}
+
+fn main() {
+    let a = Rc::new(Cons(5, RefCell::new(Rc::new(Nil))));
+
+    println!("a initial rc count = {}", Rc::strong_count(&a));
+    println!("a next item = {:?}", a.tail());
+
+    let b = Rc::new(Cons(10, RefCell::new(Rc::clone(&a))));
+
+    println!("a rc count after b creation = {}", Rc::strong_count(&a));
+    println!("b initial rc count = {}", Rc::strong_count(&b));
+    println!("b next item = {:?}", b.tail());
+
+    if let Some(link) = a.tail() {
+        *link.borrow_mut() = Rc::clone(&b);
+    }
+
+    println!("b rc count after changing a = {}", Rc::strong_count(&b));
+    println!("a rc count after changing a = {}", Rc::strong_count(&a));
+
+    // Uncomment the next line to see that we have a cycle;
+    // it will overflow the stack
+    // println!("a next item = {:?}", a.tail());
+}
+```
+To create a cycle we need to create the lists first and then modify them their tail to one another. To do that, we need to modify the tail node from nil to point to another node.Had I used just Rc<List> instead of RefCell<Rc<List>> I wouldn't be able to do so. On a tangent, why do we call it a memory leak if the memory allocated is not deallocated properly, why not memory freeze since after it is allocated it does not get deallocated while the program still runs? 
+
+
+## Weak<T>
+Some times we need cycles but using Rc<T> is causing memory leaks since the strong count does not go to 0, so Rust offers a solution though Weak<T> which are created by passing a reference to Rc<T> to the Rc::downgrade() method. Calling Rc::downgrade on Rc<T> increasee the weak_count on that Rc<T> by 1 and weak_count need not be 0 for an instance of Rc<T> to be deallocated. Since, Rc<T> is deallocated even if there are some Weak<T> pointing to it, Rust returns it wrapped in Option<Rc<T>> when we try to access the value Weak<T> is pointing to via upgrade method.
+
+In the quiz reveiw invloving Rc<T> and Weak<T>, I felt it was a good code snippet for grasping the concepts and thinking them through.
+
+```
+use std::rc::Rc;
+fn main() {
+    let r1 = Rc::new(0);
+    let r4 = {
+        let r2 = Rc::clone(&r1);
+        Rc::downgrade(&r2)
+    };
+    let r5 = Rc::clone(&r1);
+    let r6 = r4.upgrade();
+    println!("{} {}", Rc::strong_count(&r1), Rc::weak_count(&r1));
+}
+```
+
+In the above code snippet, we knwo the r1 creates a Rc<i32> and it increase the strong_count to 1. Next, inside the expression that needs to be evaluated to get the result for r4, we are creating r2 and it points to r1 so the strong count to Rc that r1 points to increases by 1 making it to 2. Then we create a weak refernce to Rc<T> pointed by by r1 and r2 and store it in r4 while increasing the weak_count to 1. Since r2 is out of scope it is dropped and the strong_count decrease by 1 making it 1(pointed by 1) and weak_count as 1(pointed by r4). Next, we create another reference and store it in r5 which increases the strong_count to 2(r1 and r5). Next, we get the value pointed by weak_pointer r4 and store it in r6. Since r4 points to Rc<T> that is pointed by r1 and r5 and it still exists since r1 and r5 havent been dropped yet since r1 is used in the print, we return Rc<T> and r6 becomes another owner along side r1 and r5 while increasing the strong_count to 3.
+
+# Week 7
+This week, I dive into the concurrency aspect of Rust. I have worked with threads on Go, so I am excited to see how Rust's threads and concurrency handling compares to Go. Maybe I learn a new way style programming that Rust uses for concurrency. Threads can maintain a shared state either by sharing messages(distributed system style, channels in Go) or by sharing memory(share variables and use mutex locks while doing it). I prefer the former, due to its clean approach and fewer chances of race conditions. Ofcourse, one sharing messages might not solve all the problems, but let me see.
+
+## Fearless Concurrency
+I have seen the title of the section long ago and been meaning to get to it. Now, that I've reached I am curious as to how Rust encourages concurrency and how many classes of runtime error can it catch during the compile time with its design. 
+
+This section started with the familiar concepts of spawning a thread with thread::spawn and using a handler returned by spawn method to wait on it (handler.join().unwrap()) as needed.
+
+In the below, code snippet when asked about whether the program would compile?
+```
+
+use std::thread;
+fn main() {
+    let mut n = 1;
+    let t = thread::spawn(move || {
+        n = n + 1;
+        thread::spawn(move || {
+            n = n + 1;
+        })
+    });
+    n = n + 1;
+    t.join().unwrap().join().unwrap();
+    println!("{n}");
+}
+```
+
+I was thinking that it would not since the main program is trying to increment the value of n even after n was moved by the thread. However, I forgot the fact the move on primitive types would copy the value and n would still be valid to use in main. So, Rust decides to Copy a value if it implements the Copy trait and if it does not it moves the ownership to a different identifier.
+
+So, I went back to Copy and Clone section in the book to re-read the definition as to what Copy and Clone trait would do. `Copy` trait allows you to duplicate a value by only copying bits stored on the stack. `Clone` trait allows you to explicitly create a deep copy of a value and since it is a deep copy, we do not simple copy the memory references, instead we duplicate the value that the reference is pointing to and we stored the reference to the copied value in the clone. From the book, it points that we can derive `Copy` on any that whose parts all implement `Copy`. Similary, we can derice `Clone` on any that only if all of its parts support `Clone`.Finally, a type that implements `Copy` must also implement `Clone`, because a type that implements `Copy` has trivial implementation of `Clone` that performs the same task as `Copy`. Since, `Clone` involves deep copy it involves running arbitrary code making it slower that `Copy`.
