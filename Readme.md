@@ -751,10 +751,10 @@ Then we have unsafe traits which is to assure Rust that they are safe and implem
 
 Finally, we have unions as Rust mentions it , these are primarliy available to interface with unions in C.
 
-# Advanced Traits
+## Advanced Traits
 With the number of traits already covered the advanced ones might have already been done, but I was wrong and we do have some more information about traits left to covers. Okay, I will read it for the sake of completeness.
 
-# Associated Types
+## Associated Types
 I understand that they have a subtle and nuanced differences with using Generics over traits, I really can't see why they are needed. I understand that in case of generics over Iterator example specified, we'd have to specify the output type when we call the next method which wouldn't be needed when used via Associated types? From the defintion in the book, *In Listing 20-13 with the definition(of Iterator) that uses associated types, we can choose what the type of Item will be only once, because there can be only one impl Iterator for Counter. We don’t have to specify that we want an iterator of u32 values everywhere that we call next on Counter.* I wish there was a code example to make it clearer to understand.
 
 ```
@@ -795,7 +795,7 @@ impl Iterator for Counter {
 
 ```
 
-# Default Generic Type Parameters and Operator Overloading
+## Default Generic Type Parameters and Operator Overloading
 As the title suggests it is about declaring defaults to Generic type definitions and the other ting is operator overloading. I have to say that, I have read about  operator overloading in C++ and had to write a program once for a programming lab and this is it. I haven't had to implement it after that and maybe I might have used the overload by being blissfully ignorant, but never had to implement it again. 
 
 This is the example of overloading + plus operator in Rust and ofcourse it uses traits to do so. Looks like Traits are part of the building blocks in Rust.
@@ -855,7 +855,7 @@ impl Add<Meters> for Millimeters {
 }
 ```
 
-# disambiguating between same methods and same associated types in traits and implmenttations
+## disambiguating between same methods and same associated types in traits and implmenttations
 
 jogging my memory: In Rust, associated functions are functions that are associated with a type (like a struct, enum, or trait) but do not operate on an instance of that type, ie., if there is no self as first parameter then it is an associated function, eg. new function for creating instances.
 If Human type implemts Pilot and wizard trait which contain fly method while also having a fly method of its own, this is how we disambiguate them. Using the assocaited method syntax to let the compiler know which method we want to call.
@@ -875,12 +875,86 @@ For associated functions it is
 <Type as Trait>::function(receiver_if_method, next_arg, ...);
 ```
 
-# Supertraits and NewType pattern
+## Supertraits and NewType pattern
 A trait Y implementing another trait X and the parent trait X is called super trait. For a type to implement the trait Y, it also needs to implement X. 
 New Type pattern to implment trait on a type where both an not defined in the package, then we use this pattern.
 
-# Advanced Types
+## Advanced Types
 
 In this section, we start with New Type pattern right of the bat. I felt like there should have been atleast some separation between the sections if they were going to reintroduce it back or they could have finished everything in a single go, but this makes sense in case of someone solely refering back to this section. That aside, it was a easy read, turns out NewType pattern is similar to the concept of abstraction and this is called NewType Pattern. Not sure why, why couldn't we just call it abstraction and leave it at that, is it that since abstraction is an oop concept, Rust designers wanted to provide some way to distinguish it since there are some subtle differences?
 
 And then we move into Dynamically Sized Types which made worry a bit, since it felt that allowing such types Rust is showing some cracks that would make it not so perfect anymore, but it is about the str type. Since, strings can be variable sized based on their context, str needs to be a DST, however Rust does not let us use str but &str ie., through a pointer to str along with its size. As &str has a definite size(size of two u32s), we can use it to write code. Rust prevents us from using DST alone by themselves and only allows us to use them through a reference or through Smart Pointer types.
+
+## Advanced Functions and Closures
+Before I summarize about the topic, I wanted to mention this effect where it becomes harder and harder to progress in Rust book from 90% to 100%. This , again, could be due to advanced topics being placed at the end or due to the fact the I lost motivation after reaching 90% since it is almost complete? Huh, maybe. 
+
+Function pointers to pass functions as arguments to other functions. Why are they called function pointers, why not just functions as function arguments. Why did they have to add the word pointers, I see no referencing and dereferencing. Keeping my naming rant aside, it is good to know that function pointers implement all three closure traits (Fn, FnMut and FnOnce) , since I can only vaguely recollect the definition for each. This brings us to the next point, if a function can accept a closure as an argument then it can also accept a function pointer as well. As for using closures vs function pointers for iterators, I would go with closures for their descriptiveness.
+
+Next talking about *returning closures*, use the `impl Trait` syntax and also note that not all `impl Fn` constitue to the same type as Rust considers them as opaque types(maybe something I glanced over and missed in the previous chapter), so we have to use trait objects to group them in vectors.
+
+## Macros
+
+This topic was super cool and it is a gateway to whole another world in Rust. Although, I have been using macros since the first hello world program, I did not expect them to be so different from the general Rust code. I was suprised to see few mentions of blogs or book(I don't recall exactly which) dedicated to macros and I wondered how different could it be? After reading this section, I came to realize the power behind macros. To get in to the macro classification, we have declarative macros(macro_rules! , this is like saying macros rule other features and the exclamation mark at the end makes it feel more like a fan exclamation) and procedural macros with (custom #[derive], attribute like and function like macros).
+
+Macros unlike functions can take variable arguments and can also perform some transformations on the code(meta programming). eg., with derive macro.
+
+### declarative macro
+Starting with declarative macro, does that mean these are only used declarations. These allow the user to write Based on the examples shown `vec!` atleast that is what I think. 
+
+```
+#[macro_export]
+macro_rules! vec {
+    ( $( $x:expr ),* ) => {
+        {
+            let mut temp_vec = Vec::new();
+            $(
+                temp_vec.push($x);
+            )*
+            temp_vec
+        }
+    };
+}
+```
+
+Seeing the above syntax, brings me back my memories from my compiler course and some programs, that I vaguely remember, I wrote for parser using Lex and Yacc. This is compared to `match` in Rust and if the syntax matches the pattern then the corresponding arm of code is executed. 
+- First set of paranthensis encompasses the whole pattern and ($) to declare a variable in macro system(yes, macro system that is the exact word, so it in itself is a different language? I am saying it based on the different syntax used here. Rust Macro language, how do we write a hello world in it), that will contain the rust code matching the pattern.
+- $x:expr matches the Rust expression and gives the name $x. Wow there is a expr type that matches epxressions, cool.
+
+### Procedural Macro
+Procedural macros accept code as input, operate on that code and produce some code as an output. The function that defines procedural macro takes `TokenStream` as an input and produces a `TokenStream` as an output, which nothing but code as input and code as output. 
+
+#### Derive macro
+We are entering the code manipulation territory. I mean just adding `#[derive(HelloMacro)]` implements a trait on the struct with the function producing custom output specific to the function and that too without the support of reflections. We were able to literally construct the abstract syntax tree, read the name of the struct and add implementation code. Not to mention, this is just a beginner example to this kind of macro. I can even fathom the possibilities it opens up to developers. Is this something available in all the languages? Since, we can manipulate the code this could inject some code that we are not expecting, however we can the implemtation through the crates so it is only as dangerous as a function. 
+
+#### Attribute-like macros
+```
+#[route(GET, "/")]
+fn index() {
+```
+
+Up until now, I have only been using attributes and may got close to implementing on in .net but this is me not just using attributes but understanding how to create them as well. And the defintion for the function is as follows:
+
+```
+#[proc_macro_attribute]
+pub fn route(attr: TokenStream, item: TokenStream) -> TokenStream {
+```
+GET, "/" are the first argument and the rest of the function code is passed as the second arugment.
+
+#### Function-like macros
+These look like function calls and are similar to macro_rules! but are much more flexible since they can accept `TokenStream` as an input.
+
+```
+let sql = sql!(SELECT * FROM posts WHERE id=1);
+```
+
+and the function definition for defining such macros would be:
+
+```
+#[proc_macro]
+pub fn sql(input: TokenStream) -> TokenStream {
+```
+
+
+## Done with implementing the final project: web server
+
+Done and dusted.
